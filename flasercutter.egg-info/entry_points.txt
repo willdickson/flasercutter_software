@@ -1,3 +1,0 @@
-[console_scripts]
-flaser = flasercutter.app:app_main
-
