@@ -72,24 +72,43 @@ class Calibration:
                 image_points_rhs[0], 
                 image_points_lhs[0]
                 ]
-        homography, mask = cv2.findHomography(np.array(point_list_px), np.array(point_list_mm), 0)
-        print(homography)
-
+        array_px = np.array(point_list_px)
+        array_mm = np.array(point_list_mm)
+        homography, mask = cv2.findHomography(array_px, array_mm, 0)
+        #array_mm_tmp = cv2.perspectiveTransform(array_px.reshape(-1,1,2), homography)
+        #array_mm_tmp = array_mm_tmp.reshape(-1,2)
+        #array_px_tmp = cv2.perspectiveTransform(array_mm.reshape(-1,1,2), np.linalg.inv(homography))
+        self.vals['homography'] = homography
+        self.vals['homography_inv'] = np.linalg.inv(homography)
 
     def convert_px_to_mm(self, points_px):
+        #cx = self.vals['cx_laser_px']
+        #cy = self.vals['cy_laser_px']
+        #sx = self.vals['x_mm_per_px']
+        #sy = self.vals['y_mm_per_px']
+        #points_mm = [(sx*(x-cx), -sy*(y-cy)) for x,y in points_px]
         cx = self.vals['cx_laser_px']
         cy = self.vals['cy_laser_px']
-        sx = self.vals['x_mm_per_px']
-        sy = self.vals['y_mm_per_px']
-        points_mm = [(sx*(x-cx), -sy*(y-cy)) for x,y in points_px]
+        homography = self.vals['homography']
+        array_px = np.array(points_px,dtype=np.float) - np.array([cx,cy])
+        array_mm = cv2.perspectiveTransform(array_px.reshape(-1,1,2),homography)
+        array_mm = array_mm.reshape(-1,2)
+        points_mm = array_mm.tolist() 
         return points_mm
 
     def convert_mm_to_px(self, points_mm):
+        #cx = self.vals['cx_laser_px']
+        #cy = self.vals['cy_laser_px']
+        #sx = 1.0/self.vals['x_mm_per_px']
+        #sy = 1.0/self.vals['y_mm_per_px']
+        #points_px = [(x*sx+cx, y*sy+cy) for x,y in points_mm]
         cx = self.vals['cx_laser_px']
         cy = self.vals['cy_laser_px']
-        sx = 1.0/self.vals['x_mm_per_px']
-        sy = 1.0/self.vals['y_mm_per_px']
-        points_px = [(x*sx+cx, y*sy+cy) for x,y in points_mm]
+        homography_inv = self.vals['homography_inv']
+        array_mm = np.array(points_mm,dtype=np.float)
+        array_px = cv2.perspectiveTransform(array_mm.reshape(-1,1,2),homography)
+        array_px = array_px.reshape(-1,2) + np.array([cx,cy])
+        points_px = array_px.tolist()
         return points_px
 
     def load(self, filename):

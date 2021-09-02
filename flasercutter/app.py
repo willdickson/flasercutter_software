@@ -45,10 +45,10 @@ class AppMainWindow(QtWidgets.QMainWindow):
     CAL_DEFAULT_PATTERN_WIDTH = 0.2
     CAL_DEFAULT_PATTERN_HEIGHT = 0.2
 
+    IMAGE_LINE_COLOR = (0,0,255)
+    IMAGE_LINE_THICKNESS =2
     IMAGE_POINT_COLOR = (0,0,255)
     IMAGE_POINT_SIZE = 6
-    IMAGE_LINE_THICKNESS =2
-    IMAGE_LINE_COLOR = (0,0,255)
 
 
     def __init__(self, *args, **kwargs):
@@ -419,6 +419,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
     def onImageLeftMouseClick(self, x, y):
         self.point_list.append((x,y))
+        self.calibration.convert_px_to_mm(self.point_list)
         if not self.camera_running:
             self.update_image()
 
