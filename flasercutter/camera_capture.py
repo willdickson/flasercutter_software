@@ -12,7 +12,7 @@ class CameraCapture(cv2.VideoCapture):
         if not self.set(cv2.CAP_PROP_FRAME_HEIGHT, 720):
             raise RuntimeError('unable to set frame height')
         if not self.set(cv2.CAP_PROP_AUTO_EXPOSURE, 3):
-            raise RuntimeError('unable to set manual exposure')
+            raise RuntimeError('unable to set auto exposure')
 
     @staticmethod
     def get_devices():

@@ -222,10 +222,14 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
     def update_image(self): 
         img_bgr = self.current_image.copy()
-        for p in self.point_list:
-            img_bgr = cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
-        for p, q in zip(self.point_list[:-1], self.point_list[1:]):
-            img_bgr = cv2.line(img_bgr, p, q, self.IMAGE_LINE_COLOR,self.IMAGE_LINE_THICKNESS)
+        sending = False
+        if self.grbl:
+            sending = self.grbl.sending
+        if not sending:
+            for p in self.point_list:
+                img_bgr = cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
+            for p, q in zip(self.point_list[:-1], self.point_list[1:]):
+                img_bgr = cv2.line(img_bgr, p, q, self.IMAGE_LINE_COLOR,self.IMAGE_LINE_THICKNESS)
         if self.calibration.ok:
             cx, cy = self.calibration.laser_pos_px
             cx = int(cx)
