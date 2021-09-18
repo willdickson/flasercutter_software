@@ -84,10 +84,13 @@ class AppMainWindow(QtWidgets.QMainWindow):
         return os.path.join(self.CONFIG_DIRECTORY, self.CALIBRATION_FILENAME)
 
     def initialize(self):
-
         self.cameraStartStopPushButton.setText('Start')
         self.cameraDeviceComboBox.addItems(camera_capture.CameraCapture.get_devices())
         self.camera_timer = QtCore.QTimer()
+        self.cameraExposureSpinBox.setMinimum(camera_capture.CameraCapture.MIN_EXPOSURE)
+        self.cameraExposureSpinBox.setMaximum(camera_capture.CameraCapture.MAX_EXPOSURE)
+        self.cameraExposureSpinBox.setValue(camera_capture.CameraCapture.DEFAULT_EXPOSURE)
+        self.cameraExposureSpinBox.setEnabled(False)
         self.setCameraFrameCountLabel(0)
 
         self.grblConnectPushButton.setText('Connect')
@@ -136,9 +139,11 @@ class AppMainWindow(QtWidgets.QMainWindow):
     def connectActions(self):
         self.stopPushButton.clicked.connect(self.onStopPushButtonClicked)
         self.gotoZeroPushButton.clicked.connect(self.onGotoZeroButtonClicked)
+        self.clearPointsPushButton.clicked.connect(self.onClearPointsClicked)
 
         self.cameraStartStopPushButton.clicked.connect(self.onCameraStartStopButtonClicked)
         self.camera_timer.timeout.connect(self.onCameraTimer)
+        self.cameraExposureSpinBox.valueChanged.connect(self.onCameraExposureChanged)
 
         self.grblConnectPushButton.clicked.connect(self.onGrblConnectButtonClicked)
         self.grblRefreshPushButton.clicked.connect(self.onGrblRefreshButtonClicked)
@@ -194,6 +199,9 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.imageItem.rightMousePressSignal.connect(self.onImageRightMouseClick)
         self.imageItem.middleMousePressSignal.connect(self.onImageMiddleMouseClick)
 
+    def onClearPointsClicked(self):
+        self.point_list = []
+
     def onStopPushButtonClicked(self):
         if self.grbl:
             self.grbl.soft_stop()
@@ -206,11 +214,16 @@ class AppMainWindow(QtWidgets.QMainWindow):
             self.camera_timer_counter = 0
             self.camera_timer.start(int(convert_sec_to_msec(self.CAMERA_TIMER_PERIOD)))
             self.cameraStartStopPushButton.setText('Stop')
+            self.cameraExposureSpinBox.setEnabled(True)
         else:
             self.camera.release()
             self.camera_running = False
             self.camera_timer.stop()
             self.cameraStartStopPushButton.setText('Start')
+            self.cameraExposureSpinBox.setEnabled(False)
+
+    def onCameraExposureChanged(self,value):
+        rval = self.camera.set_exposure(value)
 
     def onCameraTimer(self):
         ok, img_bgr = self.camera.read()
@@ -225,7 +238,8 @@ class AppMainWindow(QtWidgets.QMainWindow):
         sending = False
         if self.grbl:
             sending = self.grbl.sending
-        if not sending:
+
+        if not sending and self.pointsVisibleCheckBox.isChecked():
             for p in self.point_list:
                 img_bgr = cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
             for p, q in zip(self.point_list[:-1], self.point_list[1:]):

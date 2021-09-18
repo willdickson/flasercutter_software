@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1434</width>
+    <width>1414</width>
     <height>1010</height>
    </rect>
   </property>
@@ -359,6 +359,42 @@ border-radius: 15px;</string>
                </layout>
               </widget>
              </item>
+             <item>
+              <widget class="QWidget" name="widget_65" native="true">
+               <layout class="QHBoxLayout" name="horizontalLayout_62">
+                <item>
+                 <widget class="QPushButton" name="clearPointsPushButton">
+                  <property name="text">
+                   <string>Clear Points</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_15">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="pointsVisibleCheckBox">
+                  <property name="text">
+                   <string>points visible</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -455,6 +491,54 @@ border-radius: 15px;</string>
                      </widget>
                     </item>
                     <item>
+                     <widget class="QWidget" name="widget_62" native="true">
+                      <layout class="QHBoxLayout" name="horizontalLayout_61">
+                       <item>
+                        <widget class="QLabel" name="label_26">
+                         <property name="font">
+                          <font>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Exposure</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_14">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QSpinBox" name="cameraExposureSpinBox">
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QWidget" name="widget_3" native="true">
                       <property name="font">
                        <font>
@@ -463,6 +547,16 @@ border-radius: 15px;</string>
                        </font>
                       </property>
                       <layout class="QHBoxLayout" name="horizontalLayout">
+                       <item>
+                        <widget class="QLabel" name="cameraFrameCountLabel">
+                         <property name="text">
+                          <string>Frame count: 0</string>
+                         </property>
+                         <property name="alignment">
+                          <set>Qt::AlignCenter</set>
+                         </property>
+                        </widget>
+                       </item>
                        <item>
                         <spacer name="horizontalSpacer">
                          <property name="orientation">
@@ -484,18 +578,7 @@ border-radius: 15px;</string>
                            <bold>false</bold>
                           </font>
                          </property>
-                         <layout class="QHBoxLayout" name="horizontalLayout_6">
-                          <item>
-                           <widget class="QLabel" name="cameraFrameCountLabel">
-                            <property name="text">
-                             <string>Frame count: 0</string>
-                            </property>
-                            <property name="alignment">
-                             <set>Qt::AlignCenter</set>
-                            </property>
-                           </widget>
-                          </item>
-                         </layout>
+                         <layout class="QHBoxLayout" name="horizontalLayout_6"/>
                         </widget>
                        </item>
                       </layout>
@@ -2149,7 +2232,7 @@ background-color: rgb(230, 230, 230);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1434</width>
+     <width>1414</width>
      <height>30</height>
     </rect>
    </property>
