@@ -68,7 +68,7 @@ class GrblSender(grbl_comm.GrblComm):
                 del self.cmd_in_buff[0]
                 del self.char_counts[0]
                 
-            elif 'MPos' in line and 'WPos' in line:
+            elif 'MPos' in line or 'WPos' in line:
                 status = grbl_comm.extract_status_from_line(line)
                 rval['status'] = status
 
