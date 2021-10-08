@@ -238,21 +238,21 @@ class AppMainWindow(QtWidgets.QMainWindow):
         sending = False
         if self.grbl:
             sending = self.grbl.sending
-
         if not sending and self.pointsVisibleCheckBox.isChecked():
             for p in self.point_list:
-                img_bgr = cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
+                cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
             for p, q in zip(self.point_list[:-1], self.point_list[1:]):
-                img_bgr = cv2.line(img_bgr, p, q, self.IMAGE_LINE_COLOR,self.IMAGE_LINE_THICKNESS)
+                cv2.line(img_bgr, p, q, self.IMAGE_LINE_COLOR,self.IMAGE_LINE_THICKNESS)
         if self.calibration.ok:
             cx, cy = self.calibration.laser_pos_px
             cx = int(cx)
             cy = int(cy)
             sz = 10
-            img_bgr = cv2.line(img_bgr, (cx-sz,cy), (cx+sz,cy), (255,255,255), 2)
-            img_bgr = cv2.line(img_bgr, (cx,cy-sz), (cx,cy+sz), (255,255,255), 2)
+            cv2.line(img_bgr, (cx-sz,cy), (cx+sz,cy), (255,255,255), 2)
+            cv2.line(img_bgr, (cx,cy-sz), (cx,cy+sz), (255,255,255), 2)
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-        self.imageItem.setImage(img_rgb)
+        self.imageItem.setImage(img_rgb,autoRange=False,autoLevels=False)
+        #cv2.imshow('image', img_bgr)
 
     def setCameraFrameCountLabel(self,value):
         self.cameraFrameCountLabel.setText(f'Frame count: {self.camera_timer_counter}')
