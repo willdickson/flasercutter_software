@@ -39,7 +39,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
     GRBL_STATUS_PERIOD = 1.0/5.0
     GRBL_DEFAULT_FEEDRATE = 3.0
 
-    JOG_DEFAULT_XY_STEP = 0.2
+    JOG_DEFAULT_XY_STEP = 0.02
     JOG_DEFAULT_Z_STEP = 0.002
 
     CAL_DEFAULT_PATTERN_WIDTH = 0.2
@@ -49,6 +49,15 @@ class AppMainWindow(QtWidgets.QMainWindow):
     IMAGE_LINE_THICKNESS =2
     IMAGE_POINT_COLOR = (0,0,255)
     IMAGE_POINT_SIZE = 6
+
+    JOG_HOTKEY_DICT = {
+            QtCore.Qt.Key_H         : (-1,  0,  0 ),
+            QtCore.Qt.Key_L         : ( 1,  0,  0 ),
+            QtCore.Qt.Key_K         : ( 0,  1,  0 ),
+            QtCore.Qt.Key_J         : ( 0, -1,  0 ),
+            QtCore.Qt.Key_PageDown  : ( 0,  0, -1 ),
+            QtCore.Qt.Key_PageUp    : ( 0,  0,  1 ),
+            }
 
 
     def __init__(self, *args, **kwargs):
@@ -266,6 +275,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
         else:
             self.grbl.close()
             self.grbl = None
+            self.wpos = None
             self.grblConnectPushButton.setText('Connect')
             self.grblRefreshPushButton.setEnabled(True)
 
@@ -315,6 +325,17 @@ class AppMainWindow(QtWidgets.QMainWindow):
             jog_cmd = f'{jog_cmd}'
             self.grbl.append_cmd(jog_cmd)
             self.grbl.append_cmd('G90')
+
+    def keyPressEvent(self, event):
+        z_step_size = self.jogStepZDoubleSpinBox.value()
+        feedrate = self.jogFeedrateDoubleSpinBox.value()
+        key = event.key()
+        try:
+            key_xyz_sign = self.JOG_HOTKEY_DICT[key]
+        except KeyError:
+            key_xyz_sign = None
+        if self.grbl and key_xyz_sign is not None:
+            self.onJogPushButtonClicked(*key_xyz_sign)
 
     def onLaserPowerChanged(self, value):
         if self.laserEnableCheckBox.checkState() == QtCore.Qt.CheckState.Checked:
@@ -436,6 +457,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.point_list = []
 
     def onImageLeftMouseClick(self, x, y):
+        print(self.wpos)
         self.point_list.append((x,y))
         self.calibration.convert_px_to_mm(self.point_list)
         if not self.camera_running:

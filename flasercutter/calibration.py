@@ -63,8 +63,8 @@ class Calibration:
         self.vals['homography'] = homography
         self.vals['homography_inv'] = np.linalg.inv(homography)
 
-        print(f'data: {self.data}')
-        print(f'vals: {self.vals}')
+        #print(f'data: {self.data}')
+        #print(f'vals: {self.vals}')
 
     def convert_px_to_mm(self, points_px):
         cx = self.vals['cx_laser_px']
