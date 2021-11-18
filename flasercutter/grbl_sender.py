@@ -29,13 +29,11 @@ class GrblSender(grbl_comm.GrblComm):
         self.char_counts = []
 
     def set_zero(self):
-        print('set zero')
         self.append_cmd(f'G10P1L20 X0 Y0 Z0')
         self.append_cmd(f'G54')
 
 
     def clear_zero(self):
-        print('clear zero')
         self.append_cmd(f'G10P1L2 X0 Y0 Z0')
         self.append_cmd(f'G54')
 

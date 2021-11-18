@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1414</width>
-    <height>1010</height>
+    <height>1062</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1900,19 +1900,6 @@ border-radius: 15px;</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="calSaveDataPointsPushButton">
-                      <property name="font">
-                       <font>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Save</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
                      <spacer name="horizontalSpacer_12">
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
@@ -1926,7 +1913,7 @@ border-radius: 15px;</string>
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="calClearDataPointsPushButton">
+                     <widget class="QPushButton" name="calSaveDataPointsPushButton">
                       <property name="font">
                        <font>
                         <weight>50</weight>
@@ -1934,7 +1921,7 @@ border-radius: 15px;</string>
                        </font>
                       </property>
                       <property name="text">
-                       <string>Clear</string>
+                       <string>Save</string>
                       </property>
                      </widget>
                     </item>
@@ -2152,19 +2139,6 @@ background-color: rgb(230, 230, 230);</string>
                          </property>
                         </spacer>
                        </item>
-                       <item>
-                        <widget class="QPushButton" name="cutClearPushButton">
-                         <property name="minimumSize">
-                          <size>
-                           <width>0</width>
-                           <height>0</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>Clear</string>
-                         </property>
-                        </widget>
-                       </item>
                       </layout>
                      </widget>
                     </item>
@@ -2270,7 +2244,6 @@ background-color: rgb(230, 230, 230);</string>
   <tabstop>jogNegPosXYPushButton</tabstop>
   <tabstop>grblRefreshPushButton</tabstop>
   <tabstop>stopPushButton</tabstop>
-  <tabstop>cutClearPushButton</tabstop>
   <tabstop>calPatternWidthDoubleSpinBox</tabstop>
   <tabstop>calPatternHeightDoubleSpinBox</tabstop>
   <tabstop>calLaserRunPushButton</tabstop>
@@ -2280,7 +2253,6 @@ background-color: rgb(230, 230, 230);</string>
   <tabstop>calLaserFeedrateDoubleSpinBox</tabstop>
   <tabstop>cutLaserPowerDoubleSpinBox</tabstop>
   <tabstop>cutLaserFeedrateDoubleSpinBox</tabstop>
-  <tabstop>cutRunPushButton</tabstop>
   <tabstop>cutInfoPlainTextEdit</tabstop>
   <tabstop>controlSetZeroPushButton</tabstop>
  </tabstops>

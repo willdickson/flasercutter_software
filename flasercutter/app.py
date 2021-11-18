@@ -42,13 +42,19 @@ class AppMainWindow(QtWidgets.QMainWindow):
     JOG_DEFAULT_XY_STEP = 0.02
     JOG_DEFAULT_Z_STEP = 0.002
 
-    CAL_DEFAULT_PATTERN_WIDTH = 0.2
-    CAL_DEFAULT_PATTERN_HEIGHT = 0.2
+    CAL_DEFAULT_PATTERN_WIDTH = 0.35
+    CAL_DEFAULT_PATTERN_HEIGHT = 0.25
 
     IMAGE_LINE_COLOR = (0,0,255)
     IMAGE_LINE_THICKNESS =2
     IMAGE_POINT_COLOR = (0,0,255)
     IMAGE_POINT_SIZE = 6
+    IMAGE_DEPTH_FONT = cv2.FONT_HERSHEY_SIMPLEX
+    IMAGE_DEPTH_SCALE = 1
+    IMAGE_DEPTH_COLOR = (0,255,0)
+    IMAGE_DEPTH_THICKNESS = 2
+    IMAGE_DEPTH_LINE_TYPE = cv2.LINE_AA
+    IMAGE_DEPTH_OFFSET_PX = (10,0)
 
     JOG_HOTKEY_DICT = {
             QtCore.Qt.Key_H         : (-1,  0,  0 ),
@@ -80,7 +86,8 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.current_image = None
 
         # Point list for cutting and calibrating 
-        self.point_list = []
+        self.px_point_list = []
+        self.z_point_list = []
 
         # Calibration data
         self.calibration = calibration.Calibration() 
@@ -160,7 +167,6 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
         self.laserEnableCheckBox.stateChanged.connect(self.onLaserEnableChanged)
         self.laserPowerSlider.valueChanged.connect(self.onLaserPowerChanged)
-        self.cutClearPushButton.clicked.connect(self.onClearButtonClicked)
 
         self.jogNegPosXYPushButton.clicked.connect(
                 functools.partial(self.onJogPushButtonClicked, -1,  1,  0)
@@ -199,17 +205,17 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.calLaserRunPushButton.clicked.connect(self.onCalLaserRunButtonClicked)
         self.calAcceptDataPointsPushButton.clicked.connect(self.onCalAcceptDataPointsButtonClicked)
         self.calSaveDataPointsPushButton.clicked.connect(self.onCalSaveDataPointsButtonClicked)
-        self.calClearDataPointsPushButton.clicked.connect(self.onCalClearDataPointsButtonClicked)
 
         self.cutRunPushButton.clicked.connect(self.onCutRunButtonClicked)
-        self.cutClearPushButton.clicked.connect(self.onCutClearButtonClicked)
 
         self.imageItem.leftMousePressSignal.connect(self.onImageLeftMouseClick)
         self.imageItem.rightMousePressSignal.connect(self.onImageRightMouseClick)
         self.imageItem.middleMousePressSignal.connect(self.onImageMiddleMouseClick)
 
     def onClearPointsClicked(self):
-        self.point_list = []
+        self.px_point_list = []
+        self.z_point_list = []
+        self.update_image()
 
     def onStopPushButtonClicked(self):
         if self.grbl:
@@ -243,14 +249,27 @@ class AppMainWindow(QtWidgets.QMainWindow):
             self.setCameraFrameCountLabel(self.camera_timer_counter)
 
     def update_image(self): 
+        if self.current_image is None:
+            return
         img_bgr = self.current_image.copy()
         sending = False
         if self.grbl:
             sending = self.grbl.sending
         if not sending and self.pointsVisibleCheckBox.isChecked():
-            for p in self.point_list:
+            for p,z in zip(self.px_point_list, self.z_point_list):
                 cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
-            for p, q in zip(self.point_list[:-1], self.point_list[1:]):
+                text_pos = p[0] + self.IMAGE_DEPTH_OFFSET_PX[0], p[1]+self.IMAGE_DEPTH_OFFSET_PX[1] 
+                cv2.putText(
+                        img_bgr, 
+                        f'{int(1000*z)}', 
+                        text_pos,
+                        self.IMAGE_DEPTH_FONT, 
+                        self.IMAGE_DEPTH_SCALE, 
+                        self.IMAGE_DEPTH_COLOR, 
+                        self.IMAGE_DEPTH_THICKNESS, 
+                        self.IMAGE_DEPTH_LINE_TYPE
+                        )
+            for p, q in zip(self.px_point_list[:-1], self.px_point_list[1:]):
                 cv2.line(img_bgr, p, q, self.IMAGE_LINE_COLOR,self.IMAGE_LINE_THICKNESS)
         if self.calibration.ok:
             cx, cy = self.calibration.laser_pos_px
@@ -403,9 +422,9 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.disable_widgets_on_run()
 
     def onCalAcceptDataPointsButtonClicked(self):
-        if len(self.point_list) >= self.CALIBRATION_MINIMUM_POINTS:
+        if len(self.px_point_list) >= self.CALIBRATION_MINIMUM_POINTS:
             cal_data = {
-                    'image_points'     : self.point_list,
+                    'image_points'     : self.px_point_list,
                     'target_width_mm'  : self.calPatternWidthDoubleSpinBox.value(),
                     'target_height_mm' : self.calPatternHeightDoubleSpinBox.value(),
                     }
@@ -419,11 +438,8 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.calibration.save(self.calibration_file_fullpath)
         self.calInfoPlainTextEdit.appendPlainText('calibration points saved')
 
-    def onCalClearDataPointsButtonClicked(self):
-        self.point_list = []
-
     def onCutRunButtonClicked(self):
-        if len(self.point_list) <= 1:
+        if len(self.px_point_list) <= 1:
             info_msg = 'unable to run, require > 1 point'
             self.cutInfoPlainTextEdit.appendPlainText(info_msg)
             return
@@ -435,49 +451,48 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
         feedrate = self.cutLaserFeedrateDoubleSpinBox.value()
         power = percent_to_laser_power(self.cutLaserPowerDoubleSpinBox.value())
-        point_list_mm = self.calibration.convert_px_to_mm(self.point_list)
-        x0, y0 = point_list_mm[0]
+        px_point_list_mm = self.calibration.convert_px_to_mm(self.px_point_list)
+        xyz_point_list = [(p[0],p[1],z) for p,z in zip(px_point_list_mm, self.z_point_list)]
+        x0, y0, z0 = xyz_point_list[0]
         cmd_list = []
         cmd_list.append(f'G90')
         cmd_list.append(f'F{feedrate:0.1f}')
-        cmd_list.append(f'G1 X{x0:0.3f} Y{y0:0.3f}')
+        cmd_list.append(f'G1 X{x0:0.3f} Y{y0:0.3f} Z{z0:0.3f}')
         cmd_list.append(f'M3 S{power}')
-        for x,y in point_list_mm[1:]:
-            cmd_list.append(f'G1 X{x:0.3f} Y{y:0.3f}')
+        for x,y,z in xyz_point_list[1:]:
+            cmd_list.append(f'G1 X{x:0.3f} Y{y:0.3f} Z{z:0.3f}')
         cmd_list.append(f'M5 S0')
-        cmd_list.append('G1 X0 Y0')
+        cmd_list.append('G1 X0 Y0 Z0')
         if self.grbl:
             self.grbl.extend_cmd(cmd_list)
-            info_msg = f'running cut with {len(self.point_list)} points'
+            info_msg = f'running cut with {len(self.px_point_list)} points'
         else:
             info_msg = 'unable to run, grbl not connected'
         self.cutInfoPlainTextEdit.appendPlainText(info_msg)
 
-    def onCutClearButtonClicked(self):
-        self.point_list = []
-
     def onImageLeftMouseClick(self, x, y):
-        print(self.wpos)
-        self.point_list.append((x,y))
-        self.calibration.convert_px_to_mm(self.point_list)
+        if not self.wpos is None:
+            z = self.wpos['z']
+        else:
+            z = 0.0
+        self.px_point_list.append((x,y))
+        self.z_point_list.append(z)
+        self.calibration.convert_px_to_mm(self.px_point_list)
         if not self.camera_running:
             self.update_image()
 
     def onImageRightMouseClick(self, x, y):
-        self.point_list.pop()
+        self.px_point_list.pop()
+        self.z_point_list.pop()
         if not self.camera_running:
             self.update_image()
 
     def onImageMiddleMouseClick(self, x, y):
-        if len(self.point_list) > 2:
-            self.point_list.append(self.point_list[0])
+        if len(self.px_point_list) > 2:
+            self.px_point_list.append(self.px_point_list[0])
+            self.z_point_list.append(self.z_point_list[0])
         if not self.camera_running:
             self.update_image()
-        
-    def onClearButtonClicked(self):
-        self.point_list = []
-        self.update_image()
-
 
     def disable_widgets_on_run(self):
         for w in self.widgets_to_disable_on_run:
