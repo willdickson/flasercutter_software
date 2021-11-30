@@ -37,13 +37,18 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
     GRBL_TIMER_PERIOD = 1.0/100.0
     GRBL_STATUS_PERIOD = 1.0/5.0
-    GRBL_DEFAULT_FEEDRATE = 3.0
 
     JOG_DEFAULT_XY_STEP = 0.02
     JOG_DEFAULT_Z_STEP = 0.002
+    JOG_DEFAULT_FEEDRATE = 3.0
 
     CAL_DEFAULT_PATTERN_WIDTH = 0.35
     CAL_DEFAULT_PATTERN_HEIGHT = 0.25
+    CAL_DEFAULT_FEEDRATE = 3.0 
+    CAL_DEFAULT_LASER_POWER = 20.0
+
+    CUT_DEFAULT_FEEDRATE = 3.0
+    CUT_DEFAULT_LASER_POWER = 20.0
 
     IMAGE_LINE_COLOR = (0,0,255)
     IMAGE_LINE_THICKNESS =2
@@ -119,13 +124,15 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.jogStepZDoubleSpinBox.setMinimum(self.jogStepZDoubleSpinBox.singleStep())
         self.jogStepZDoubleSpinBox.setValue(self.JOG_DEFAULT_Z_STEP)  
         self.jogFeedrateDoubleSpinBox.setMinimum(self.jogFeedrateDoubleSpinBox.singleStep())
-        self.jogFeedrateDoubleSpinBox.setValue(self.GRBL_DEFAULT_FEEDRATE)
+        self.jogFeedrateDoubleSpinBox.setValue(self.JOG_DEFAULT_FEEDRATE)
 
-        self.calLaserFeedrateDoubleSpinBox.setValue(self.GRBL_DEFAULT_FEEDRATE)
+        self.calLaserFeedrateDoubleSpinBox.setValue(self.CAL_DEFAULT_FEEDRATE)
+        self.calLaserPowerDoubleSpinBox.setValue(self.CAL_DEFAULT_LASER_POWER)
         self.calPatternWidthDoubleSpinBox.setValue(self.CAL_DEFAULT_PATTERN_WIDTH)
         self.calPatternHeightDoubleSpinBox.setValue(self.CAL_DEFAULT_PATTERN_HEIGHT)
 
-        self.cutLaserFeedrateDoubleSpinBox.setValue(self.GRBL_DEFAULT_FEEDRATE)
+        self.cutLaserFeedrateDoubleSpinBox.setValue(self.CUT_DEFAULT_FEEDRATE)
+        self.cutLaserPowerDoubleSpinBox.setValue(self.CUT_DEFAULT_LASER_POWER)
 
         self.cameraView.ui.histogram.hide()
         self.cameraView.ui.roiBtn.hide()
