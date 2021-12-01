@@ -1,20 +1,24 @@
+import os
+import time
+import pickle
 import collections
 import numpy as np
 
 class ImageStackCollector:
 
-    DEFAULT_SLEEP_DT = 0.1
-    DEFAULT_IMAGES_PER_STEP = 10 
+    DEFAULT_IMAGES_PER_STEP = 20 
+    DEFAULT_SETTLING_TIME = 2.0
 
     def __init__(self, min_val=-0.05, max_val=0.05, num=10):
-        self.sleep_dt = self.DEFAULT_SLEEP_DT
         self.images_per_step = self.DEFAULT_IMAGES_PER_STEP
+        self.settling_time = self.DEFAULT_SETTLING_TIME
         self.set_range(min_val, max_val, num)
         self.images = collections.OrderedDict() 
+        self.t_step = 0.0
+        self.index = self.num
 
     def set_range(self, min_val, max_val, num):
         self.steps = np.linspace(min_val, max_val, num)
-        self.index = self.num
 
     @property
     def min_val(self):
@@ -38,11 +42,15 @@ class ImageStackCollector:
 
     @property
     def step_complete(self):
-        if self.running:
+        if self.running and self.index >= 0:
             val = self.steps[self.index] 
             return len(self.images[val]) >= self.images_per_step
         else:
             return True
+
+    @property
+    def settled(self):
+        return (time.time() - self.t_step) > self.settling_time
 
     def start(self):
         self.clear()
@@ -56,6 +64,7 @@ class ImageStackCollector:
 
     def next_step(self):
         self.index += 1
+        self.t_step = time.time()
         if self.index < self.num:
             val = self.steps[self.index] 
             self.images[val] = [] 
@@ -66,6 +75,11 @@ class ImageStackCollector:
     def add_image(self, image):
         val = self.steps[self.index] 
         self.images[val].append(image) 
+
+    def save(self, filename='focus_stack.pkl'):
+        filepath = os.path.join(os.environ['HOME'], filename)
+        with open(filepath,'wb') as f:
+            pickle.dump(self.images,f)
 
 
 

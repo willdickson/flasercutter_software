@@ -2248,7 +2248,7 @@ background-color: rgb(230, 230, 230);</string>
                           <widget class="QWidget" name="widget_70" native="true">
                            <layout class="QHBoxLayout" name="horizontalLayout_66">
                             <item>
-                             <widget class="QDoubleSpinBox" name="focusStackMinXDdoubleSpinBox">
+                             <widget class="QDoubleSpinBox" name="focusStackMinZDoubleSpinBox">
                               <property name="minimumSize">
                                <size>
                                 <width>80</width>

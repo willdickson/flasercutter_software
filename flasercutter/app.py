@@ -2,7 +2,9 @@ from __future__ import print_function
 import os
 import sys
 import time
+import enum
 import functools
+
 try:
     import importlib.resources as pkg_resources
 except ImportError:
@@ -38,6 +40,13 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
     GRBL_TIMER_PERIOD = 1.0/100.0
     GRBL_STATUS_PERIOD = 1.0/5.0
+    GRBL_MODE_IDLE = 1
+    GRBL_MODE_RUN = 2
+    GRBL_MODE_UNKNOWN = 3
+    GRBL_MODE_DICT = {
+            'idle' : GRBL_MODE_IDLE,
+            'run'  : GRBL_MODE_RUN,
+            }
 
     JOG_DEFAULT_XY_STEP = 0.02
     JOG_DEFAULT_Z_STEP = 0.002
@@ -71,7 +80,6 @@ class AppMainWindow(QtWidgets.QMainWindow):
             QtCore.Qt.Key_PageUp    : ( 0,  0,  1 ),
             }
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         with pkg_resources.path(__package__, self.UI_FILENAME) as p:
@@ -83,6 +91,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.grbl_timer_counter = 0
         self.grbl_last_status = time.time()
         self.wpos = None
+        self.mode = self.GRBL_MODE_IDLE
 
         # Camera 
         self.camera = None
@@ -107,6 +116,10 @@ class AppMainWindow(QtWidgets.QMainWindow):
     @property
     def calibration_file_fullpath(self):
         return os.path.join(self.CONFIG_DIRECTORY, self.CALIBRATION_FILENAME)
+
+    @property
+    def grbl_idle(self):
+        return self.mode == self.GRBL_MODE_IDLE
 
     def initialize(self):
         self.cameraStartStopPushButton.setText('Start')
@@ -137,6 +150,10 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
         self.cutLaserFeedrateDoubleSpinBox.setValue(self.CUT_DEFAULT_FEEDRATE)
         self.cutLaserPowerDoubleSpinBox.setValue(self.CUT_DEFAULT_LASER_POWER)
+
+        self.focusStackMaxZDoubleSpinBox.setValue(self.image_stack_collector.max_val)
+        self.focusStackMinZDoubleSpinBox.setValue(self.image_stack_collector.min_val)
+        self.focusStackQtySpinBox.setValue(self.image_stack_collector.num)
 
         self.cameraView.ui.histogram.hide()
         self.cameraView.ui.roiBtn.hide()
@@ -259,8 +276,33 @@ class AppMainWindow(QtWidgets.QMainWindow):
             self.update_image()
             self.camera_timer_counter += 1
             self.setCameraFrameCountLabel(self.camera_timer_counter)
-            #if self.image_stack_collector.running:
-            #    pass
+            if self.image_stack_collector.running and self.grbl_idle:
+                if self.image_stack_collector.is_first:
+                    min_z = self.focusStackMinZDoubleSpinBox.value()
+                    max_z = self.focusStackMaxZDoubleSpinBox.value()
+                    num_z = self.focusStackQtySpinBox.value()
+                    self.image_stack_collector.set_range(min_z, max_z, num_z)
+                    self.cutInfoPlainTextEdit.appendPlainText('focus stack begin')
+                if self.image_stack_collector.step_complete:
+                    z_val = self.image_stack_collector.next_step()
+                    if z_val is None:
+                        z_val = 0.0
+                    feedrate = self.jogFeedrateDoubleSpinBox.value()
+                    cmd_list = []
+                    cmd_list.append(f'G90')
+                    cmd_list.append(f'F{feedrate:0.1f}')
+                    cmd_list.append(f'G1 Z{z_val:0.3f}')
+                    if self.grbl:
+                        self.grbl.extend_cmd(cmd_list)
+                        info_msg = f'  moving to z= {z_val:0.3f}'
+                    else:
+                        info_msg = 'unable to move, grbl not connected'
+                    self.cutInfoPlainTextEdit.appendPlainText(info_msg)
+                    if not self.image_stack_collector.running:
+                        self.cutInfoPlainTextEdit.appendPlainText('focus stack done')
+                        self.image_stack_collector.save()
+                elif self.image_stack_collector.settled: 
+                    self.image_stack_collector.add_image(img_bgr)
 
     def update_image(self): 
         if self.current_image is None:
@@ -325,8 +367,11 @@ class AppMainWindow(QtWidgets.QMainWindow):
                 query_status = True
             rsp = self.grbl.update(query_status=query_status)
             if 'status' in rsp:
+                #print(rsp['status'])
                 self.wpos = rsp['status']['WPos']
-                self.modeLabel.setText(rsp['status']['mode'])
+                mode_str = rsp['status']['mode']
+                self.mode = self.GRBL_MODE_DICT.get(mode_str, self.GRBL_MODE_UNKNOWN)
+                self.modeLabel.setText(mode_str)
                 x = rm_negative_zero(rsp['status']['WPos']['x'])
                 y = rm_negative_zero(rsp['status']['WPos']['y'])
                 z = rm_negative_zero(rsp['status']['WPos']['z'])
@@ -486,7 +531,6 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
     def onFocusStackRunButtonClicked(self):
         if self.camera_running: # and self.grbl:
-            print('running focus stack procedure')
             self.image_stack_collector.start()
 
     def onImageLeftMouseClick(self, x, y):
