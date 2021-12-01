@@ -23,6 +23,7 @@ from . import image_item
 from . import grbl_sender
 from . import calibration
 from . import camera_capture
+from . import image_stack_collector
 
 
 class AppMainWindow(QtWidgets.QMainWindow):
@@ -96,6 +97,9 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
         # Calibration data
         self.calibration = calibration.Calibration() 
+
+        # Image stack collector
+        self.image_stack_collector = image_stack_collector.ImageStackCollector()
 
         self.initialize()
         self.connectActions()
@@ -214,6 +218,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.calSaveDataPointsPushButton.clicked.connect(self.onCalSaveDataPointsButtonClicked)
 
         self.cutRunPushButton.clicked.connect(self.onCutRunButtonClicked)
+        self.focusStackRunPushButton.clicked.connect(self.onFocusStackRunButtonClicked)
 
         self.imageItem.leftMousePressSignal.connect(self.onImageLeftMouseClick)
         self.imageItem.rightMousePressSignal.connect(self.onImageRightMouseClick)
@@ -254,6 +259,8 @@ class AppMainWindow(QtWidgets.QMainWindow):
             self.update_image()
             self.camera_timer_counter += 1
             self.setCameraFrameCountLabel(self.camera_timer_counter)
+            #if self.image_stack_collector.running:
+            #    pass
 
     def update_image(self): 
         if self.current_image is None:
@@ -476,6 +483,11 @@ class AppMainWindow(QtWidgets.QMainWindow):
         else:
             info_msg = 'unable to run, grbl not connected'
         self.cutInfoPlainTextEdit.appendPlainText(info_msg)
+
+    def onFocusStackRunButtonClicked(self):
+        if self.camera_running: # and self.grbl:
+            print('running focus stack procedure')
+            self.image_stack_collector.start()
 
     def onImageLeftMouseClick(self, x, y):
         if not self.wpos is None:

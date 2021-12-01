@@ -2122,7 +2122,7 @@ background-color: rgb(230, 230, 230);</string>
                        <item>
                         <widget class="QPushButton" name="cutRunPushButton">
                          <property name="text">
-                          <string>Run</string>
+                          <string>Run Cut</string>
                          </property>
                         </widget>
                        </item>
@@ -2134,6 +2134,246 @@ background-color: rgb(230, 230, 230);</string>
                          <property name="sizeHint" stdset="0">
                           <size>
                            <width>0</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="focusStackGroupBox">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="title">
+                    <string>Focus Stack</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_18">
+                    <item>
+                     <widget class="QWidget" name="widget_66" native="true">
+                      <layout class="QHBoxLayout" name="horizontalLayout_69">
+                       <item>
+                        <layout class="QFormLayout" name="formLayout_5">
+                         <item row="0" column="0">
+                          <widget class="QWidget" name="widget_67" native="true">
+                           <layout class="QHBoxLayout" name="horizontalLayout_63">
+                            <item>
+                             <widget class="QLabel" name="label_27">
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Max Z</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QWidget" name="widget_68" native="true">
+                           <layout class="QHBoxLayout" name="horizontalLayout_64">
+                            <item>
+                             <widget class="QDoubleSpinBox" name="focusStackMaxZDoubleSpinBox">
+                              <property name="minimumSize">
+                               <size>
+                                <width>80</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="decimals">
+                               <number>3</number>
+                              </property>
+                              <property name="minimum">
+                               <double>-99.989999999999995</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.001000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="label_28">
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>(mm)</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QWidget" name="widget_69" native="true">
+                           <layout class="QHBoxLayout" name="horizontalLayout_65">
+                            <item>
+                             <widget class="QLabel" name="label_29">
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>Min Z</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QWidget" name="widget_70" native="true">
+                           <layout class="QHBoxLayout" name="horizontalLayout_66">
+                            <item>
+                             <widget class="QDoubleSpinBox" name="focusStackMinXDdoubleSpinBox">
+                              <property name="minimumSize">
+                               <size>
+                                <width>80</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="decimals">
+                               <number>3</number>
+                              </property>
+                              <property name="minimum">
+                               <double>-99.989999999999995</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.001000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="label_30">
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>(mm)</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QWidget" name="widget_71" native="true">
+                           <property name="font">
+                            <font>
+                             <weight>50</weight>
+                             <bold>false</bold>
+                            </font>
+                           </property>
+                           <layout class="QHBoxLayout" name="horizontalLayout_67">
+                            <item>
+                             <widget class="QLabel" name="label_31">
+                              <property name="text">
+                               <string>Qty</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QWidget" name="widget_72" native="true">
+                           <layout class="QHBoxLayout" name="horizontalLayout_68">
+                            <item>
+                             <widget class="QSpinBox" name="focusStackQtySpinBox">
+                              <property name="minimumSize">
+                               <size>
+                                <width>80</width>
+                                <height>0</height>
+                               </size>
+                              </property>
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="minimum">
+                               <number>1</number>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="QLabel" name="label_32">
+                              <property name="font">
+                               <font>
+                                <weight>50</weight>
+                                <bold>false</bold>
+                               </font>
+                              </property>
+                              <property name="text">
+                               <string>(frames)</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QWidget" name="widget_73" native="true">
+                      <layout class="QHBoxLayout" name="horizontalLayout_70">
+                       <item>
+                        <widget class="QPushButton" name="focusStackRunPushButton">
+                         <property name="font">
+                          <font>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Run Stack</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_16">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>183</width>
                            <height>20</height>
                           </size>
                          </property>
