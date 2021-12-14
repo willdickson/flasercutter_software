@@ -2338,7 +2338,7 @@ background-color: rgb(230, 230, 230);</string>
                                </font>
                               </property>
                               <property name="text">
-                               <string>(frames)</string>
+                               <string>(steps)</string>
                               </property>
                              </widget>
                             </item>
