@@ -300,7 +300,8 @@ class AppMainWindow(QtWidgets.QMainWindow):
                     self.cutInfoPlainTextEdit.appendPlainText(info_msg)
                     if not self.image_stack_collector.running:
                         self.cutInfoPlainTextEdit.appendPlainText('focus stack done')
-                        self.image_stack_collector.save()
+                        self.image_stack_collector.calc_focus_and_depth_images()
+                        #self.image_stack_collector.save()
                 elif self.image_stack_collector.settled: 
                     self.image_stack_collector.add_image(img_bgr)
 
