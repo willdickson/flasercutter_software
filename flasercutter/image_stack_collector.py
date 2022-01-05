@@ -39,6 +39,13 @@ class ImageStackCollector:
         self.steps = np.linspace(min_val, max_val, num)
 
     @property
+    def ready(self):
+        if (self.focus_image is not None) and (self.depth_image is not None):
+            return True
+        else:
+            return False
+
+    @property
     def min_val(self):
         return self.steps.min()
 

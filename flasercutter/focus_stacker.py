@@ -1,9 +1,22 @@
 # -*- coding: utf-8 -*-
 """
+
+Note, this is a modified version of the FocusStacker class found in focus_stack.py in 
+https://github.com/momonala/focus-stack
+
+I simplified the algorithm - only keep the parts relevant for this application. I also  
+modified the algorithm so that depth information is retained as this is required for 
+setting the correct laser cutting depth. 
+
+------------------------------------------------------------------------------------------
+Mohit Nalavadi's notes from the original version
+
 This code and algorithm was inspired and adapted from the following sources:
 http://stackoverflow.com/questions/15911783/what-are-some-common-focus-stacking-algorithms
 https://github.com/cmcguinness/focusstack
 https://github.com/momonala/focus-stack
+
+------------------------------------------------------------------------------------------
 
 """
 

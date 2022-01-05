@@ -2373,11 +2373,24 @@ background-color: rgb(230, 230, 230);</string>
                          </property>
                          <property name="sizeHint" stdset="0">
                           <size>
-                           <width>183</width>
+                           <width>40</width>
                            <height>20</height>
                           </size>
                          </property>
                         </spacer>
+                       </item>
+                       <item>
+                        <widget class="QCheckBox" name="showFocusStackCheckBox">
+                         <property name="font">
+                          <font>
+                           <weight>50</weight>
+                           <bold>false</bold>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Show</string>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </widget>

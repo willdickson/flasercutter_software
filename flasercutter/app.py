@@ -306,13 +306,30 @@ class AppMainWindow(QtWidgets.QMainWindow):
                     self.image_stack_collector.add_image(img_bgr)
 
     def update_image(self): 
-        if self.current_image is None:
-            return
-        img_bgr = self.current_image.copy()
+
+        # Check to see if we are currently send data to grbl.  
         sending = False
         if self.grbl:
             sending = self.grbl.sending
+
+        # Get image for display.  Which image is used depends on whether or not focus stack 
+        # image is selected and ready. 
+        ok = True
+        if not sending and self.showFocusStackCheckBox.isChecked() and self.image_stack_collector.ready:
+            # Use focus stack image
+            img_bgr = self.image_stack_collector.focus_image
+        else:
+            # Use camera image
+            if self.current_image is None:
+                ok = False
+            img_bgr = self.current_image.copy()
+
+        # We don't have an image ... don't update
+        if not ok:
+            return
+
         if not sending and self.pointsVisibleCheckBox.isChecked():
+            # Add points in point_list
             for p,z in zip(self.px_point_list, self.z_point_list):
                 cv2.circle(img_bgr, p, self.IMAGE_POINT_SIZE, self.IMAGE_POINT_COLOR, cv2.FILLED)
                 text_pos = p[0] + self.IMAGE_DEPTH_OFFSET_PX[0], p[1]+self.IMAGE_DEPTH_OFFSET_PX[1] 
@@ -326,9 +343,12 @@ class AppMainWindow(QtWidgets.QMainWindow):
                         self.IMAGE_DEPTH_THICKNESS, 
                         self.IMAGE_DEPTH_LINE_TYPE
                         )
+            # Add lines between points in point_list
             for p, q in zip(self.px_point_list[:-1], self.px_point_list[1:]):
                 cv2.line(img_bgr, p, q, self.IMAGE_LINE_COLOR,self.IMAGE_LINE_THICKNESS)
+
         if self.calibration.ok:
+            # Add laser position indicator
             cx, cy = self.calibration.laser_pos_px
             cx = int(cx)
             cy = int(cy)
