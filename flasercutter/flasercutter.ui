@@ -2380,7 +2380,7 @@ background-color: rgb(230, 230, 230);</string>
                         </spacer>
                        </item>
                        <item>
-                        <widget class="QCheckBox" name="showFocusStackCheckBox">
+                        <widget class="QCheckBox" name="focusStackShowCheckBox">
                          <property name="font">
                           <font>
                            <weight>50</weight>

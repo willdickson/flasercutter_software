@@ -71,6 +71,13 @@ class AppMainWindow(QtWidgets.QMainWindow):
     IMAGE_DEPTH_LINE_TYPE = cv2.LINE_AA
     IMAGE_DEPTH_OFFSET_PX = (10,0)
 
+    FOCUS_STACK_TEXT_POS = (7,25)
+    FOCUS_STACK_FONT = cv2.FONT_HERSHEY_SIMPLEX
+    FOCUS_STACK_SCALE = 1 
+    FOCUS_STACK_COLOR = (255,0,0) 
+    FOCUS_STACK_THICKNESS = 2 
+    FOCUS_STACK_LINE_TYPE = cv2.LINE_AA
+
     JOG_HOTKEY_DICT = {
             QtCore.Qt.Key_H         : (-1,  0,  0 ),
             QtCore.Qt.Key_L         : ( 1,  0,  0 ),
@@ -154,6 +161,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
         self.focusStackMaxZDoubleSpinBox.setValue(self.image_stack_collector.max_val)
         self.focusStackMinZDoubleSpinBox.setValue(self.image_stack_collector.min_val)
         self.focusStackQtySpinBox.setValue(self.image_stack_collector.num)
+        self.focusStackShowCheckBox.setEnabled(True)
 
         self.cameraView.ui.histogram.hide()
         self.cameraView.ui.roiBtn.hide()
@@ -305,6 +313,11 @@ class AppMainWindow(QtWidgets.QMainWindow):
                 elif self.image_stack_collector.settled: 
                     self.image_stack_collector.add_image(img_bgr)
 
+        if self.image_stack_collector.ready:
+            self.focusStackShowCheckBox.setEnabled(True)
+        else:
+            self.focusStackShowCheckBox.setEnabled(False)
+
     def update_image(self): 
 
         # Check to see if we are currently send data to grbl.  
@@ -314,19 +327,37 @@ class AppMainWindow(QtWidgets.QMainWindow):
 
         # Get image for display.  Which image is used depends on whether or not focus stack 
         # image is selected and ready. 
-        ok = True
-        if not sending and self.showFocusStackCheckBox.isChecked() and self.image_stack_collector.ready:
+        show_focus_stack = self.focusStackShowCheckBox.isChecked() and self.image_stack_collector.ready
+
+        if not sending and show_focus_stack:
             # Use focus stack image
-            img_bgr = self.image_stack_collector.focus_image
+            img_bgr = self.image_stack_collector.focus_image.copy()
+            cv2.putText(
+                    img_bgr, 
+                    'Focus Stack', 
+                    self.FOCUS_STACK_TEXT_POS,
+                    self.FOCUS_STACK_FONT, 
+                    self.FOCUS_STACK_SCALE, 
+                    self.FOCUS_STACK_COLOR, 
+                    self.FOCUS_STACK_THICKNESS, 
+                    self.FOCUS_STACK_LINE_TYPE
+                    )
         else:
-            # Use camera image
-            if self.current_image is None:
-                ok = False
+            # Use current image from camera
             img_bgr = self.current_image.copy()
 
-        # We don't have an image ... don't update
-        if not ok:
-            return
+        if self.image_stack_collector.running:
+            # Show message if running focus stak
+            cv2.putText(
+                    img_bgr, 
+                    'Running Focus Stack', 
+                    self.FOCUS_STACK_TEXT_POS,
+                    self.FOCUS_STACK_FONT, 
+                    self.FOCUS_STACK_SCALE, 
+                    self.FOCUS_STACK_COLOR, 
+                    self.FOCUS_STACK_THICKNESS, 
+                    self.FOCUS_STACK_LINE_TYPE
+                    )
 
         if not sending and self.pointsVisibleCheckBox.isChecked():
             # Add points in point_list
@@ -555,10 +586,13 @@ class AppMainWindow(QtWidgets.QMainWindow):
             self.image_stack_collector.start()
 
     def onImageLeftMouseClick(self, x, y):
-        if not self.wpos is None:
-            z = self.wpos['z']
+        if self.focusStackShowCheckBox.isChecked() and self.image_stack_collector.ready:
+            z = self.image_stack_collector.depth_image[y,x]
         else:
-            z = 0.0
+            if not self.wpos is None:
+                z = self.wpos['z']
+            else:
+                z = 0.0
         self.px_point_list.append((x,y))
         self.z_point_list.append(z)
         self.calibration.convert_px_to_mm(self.px_point_list)
