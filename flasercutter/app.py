@@ -267,6 +267,7 @@ class AppMainWindow(QtWidgets.QMainWindow):
             self.camera_timer.start(int(convert_sec_to_msec(self.CAMERA_TIMER_PERIOD)))
             self.cameraStartStopPushButton.setText('Stop')
             self.cameraExposureSpinBox.setEnabled(True)
+            self.camera.set_exposure(self.cameraExposureSpinBox.value())
         else:
             self.camera.release()
             self.camera_running = False

@@ -12,7 +12,7 @@ class CameraCapture(cv2.VideoCapture):
 
     DEFAULT_FRAME_WIDTH = 1280
     DEFAULT_FRAME_HEIGHT = 720
-    DEFAULT_EXPOSURE = 60 
+    DEFAULT_EXPOSURE = 300 
     DEFAULT_AUTO_EXPOSURE = AUTO_EXPOSURE_OFF 
     
     def __init__(self, dev):
